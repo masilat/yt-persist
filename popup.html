@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YT Persist</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <h1>YT Persist</h1>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="YT Resume sections">
+        <button class="tab active" type="button" role="tab" aria-selected="true" aria-controls="continue-panel" data-tab="continue-panel">Continue</button>
+        <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="saved-panel" data-tab="saved-panel">Saved</button>
+        <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="history-panel" data-tab="history-panel">History</button>
+      </nav>
+
+      <section id="continue-panel" class="section tab-panel active" role="tabpanel" tabindex="0" aria-labelledby="continue-title">
+        <div class="section-heading">
+          <h2 id="continue-title">Continue Watching</h2>
+          <span id="continue-count" class="count">0/10</span>
+        </div>
+        <p id="limit-message" class="notice" hidden>You already have 10 videos in Continue Watching. Finish or remove one first.</p>
+        <div id="continue-list" class="video-list"></div>
+        <p id="continue-empty" class="empty-state" hidden>No unfinished videos.</p>
+      </section>
+
+      <section id="saved-panel" class="section tab-panel" role="tabpanel" tabindex="0" aria-labelledby="saved-title" hidden>
+        <div class="section-heading">
+          <h2 id="saved-title">Saved for Later</h2>
+          <span id="saved-count" class="count">0/20</span>
+        </div>
+        <button id="save-current" class="save-current" type="button">Save current video</button>
+        <p id="save-message" class="notice muted" hidden></p>
+        <div id="saved-list" class="video-list"></div>
+        <p id="saved-empty" class="empty-state" hidden>No saved videos.</p>
+      </section>
+
+      <section id="history-panel" class="section tab-panel" role="tabpanel" tabindex="0" aria-labelledby="history-title" hidden>
+        <div class="section-heading">
+          <h2 id="history-title">History</h2>
+        </div>
+        <div id="history-list" class="video-list"></div>
+        <p id="history-empty" class="empty-state" hidden>No completed videos from the last 30 days.</p>
+      </section>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
