@@ -75,7 +75,7 @@ function buildResumeUrl(video) {
 
 function openTab(url, context) {
   chrome.tabs.create({ url }).catch((error) => {
-    console.error(`YT Resume: failed to open ${context}`, error);
+    console.error(`YT Persist: failed to open ${context}`, error);
   });
 }
 
@@ -113,10 +113,10 @@ async function loadLists() {
       continueVideos: sortByDate(videos.filter(isContinueVideo), "lastWatchedAt"),
       savedVideos: sortByDate(videos.filter(isSavedVideo), "savedAt"),
       historyVideos: sortByDate(videos.filter(isHistoryVideo), "completedAt"),
-      limitMessage: freshItems.ytResumeLastLimitMessage
+      limitMessage: freshItems.ytPersistLastLimitMessage
     };
   } catch (error) {
-    console.error("YT Resume: failed to load videos", error);
+    console.error("YT Persist: failed to load videos", error);
     return { continueVideos: [], savedVideos: [], historyVideos: [], limitMessage: null };
   }
 }
@@ -146,7 +146,7 @@ async function markDone(videoId) {
     });
     await render();
   } catch (error) {
-    console.error(`YT Resume: failed to mark ${videoId} done`, error);
+    console.error(`YT Persist: failed to mark ${videoId} done`, error);
   }
 }
 
@@ -155,7 +155,7 @@ async function removeVideo(videoId) {
     await chrome.storage.local.remove(videoId);
     await render();
   } catch (error) {
-    console.error(`YT Resume: failed to remove ${videoId}`, error);
+    console.error(`YT Persist: failed to remove ${videoId}`, error);
   }
 }
 
@@ -280,7 +280,7 @@ async function saveCurrentVideo() {
       return;
     }
 
-    const response = await chrome.tabs.sendMessage(tab.id, { type: "YT_RESUME_GET_CURRENT_VIDEO" });
+    const response = await chrome.tabs.sendMessage(tab.id, { type: "YT_PERSIST_GET_CURRENT_VIDEO" });
     if (!response?.ok) {
       setSaveMessage(response?.error || "Could not read this video.");
       return;
@@ -319,7 +319,7 @@ async function saveCurrentVideo() {
     setSaveMessage("Saved for later.");
     await render();
   } catch (error) {
-    console.error("YT Resume: failed to save current video", error);
+    console.error("YT Persist: failed to save current video", error);
     const message = error?.message || "";
     const pageNotReady = message.includes("Could not establish connection") || message.includes("Receiving end does not exist");
     setSaveMessage(pageNotReady ? "Please refresh the YouTube page and try again." : "Could not save this video.", false);

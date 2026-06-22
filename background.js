@@ -1,4 +1,4 @@
-const ALARM_NAME = "yt-resume-check";
+const ALARM_NAME = "yt-persist-check";
 const ALARM_PERIOD_MINUTES = 60;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HISTORY_RETENTION_MS = 30 * DAY_MS;
@@ -20,7 +20,7 @@ async function getStoredVideos() {
     const items = await chrome.storage.local.get(null);
     return Object.values(items).filter((item) => item && typeof item === "object" && item.videoId);
   } catch (error) {
-    console.error("YT Resume: failed to read stored videos", error);
+    console.error("YT Persist: failed to read stored videos", error);
     return [];
   }
 }
@@ -51,7 +51,7 @@ async function updateBadge() {
     await chrome.action.setBadgeBackgroundColor({ color: "#d71920" });
     await chrome.action.setBadgeText({ text: count > 0 ? String(count) : "" });
   } catch (error) {
-    console.error("YT Resume: failed to update badge", error);
+    console.error("YT Persist: failed to update badge", error);
   }
 }
 
@@ -71,7 +71,7 @@ async function pruneHistory() {
       await chrome.storage.local.remove(expiredKeys);
     }
   } catch (error) {
-    console.error("YT Resume: failed to prune history", error);
+    console.error("YT Persist: failed to prune history", error);
   }
 }
 
@@ -105,7 +105,7 @@ async function markNotified(videoId, timestamp) {
       }
     });
   } catch (error) {
-    console.error(`YT Resume: failed to update lastNotifiedAt for ${videoId}`, error);
+    console.error(`YT Persist: failed to update lastNotifiedAt for ${videoId}`, error);
   }
 }
 
@@ -119,18 +119,18 @@ async function sendNotification(video, now) {
     ? video.remainingDuration
     : Math.max(0, (video.totalDuration || 0) - (video.currentTimestamp || 0));
   const title = clampTitle(video.title || "YouTube video");
-  const notificationId = `yt-resume:${video.videoId}`;
+  const notificationId = `yt-persist:${video.videoId}`;
 
   try {
     await chrome.notifications.create(notificationId, {
       type: "basic",
       iconUrl: "icons/icon128.png",
-      title: "YT Resume",
+      title: "YT Persist",
       message: `You still have ${formatDuration(remaining)} left in '${title}'.`
     });
     await markNotified(video.videoId, new Date(now).toISOString());
   } catch (error) {
-    console.error(`YT Resume: failed to notify for ${video.videoId}`, error);
+    console.error(`YT Persist: failed to notify for ${video.videoId}`, error);
   }
 }
 
@@ -148,51 +148,51 @@ async function checkVideosForNotifications() {
 
 chrome.runtime.onInstalled.addListener(() => {
   registerAlarms().catch((error) => {
-    console.error("YT Resume: failed to register alarms on install", error);
+    console.error("YT Persist: failed to register alarms on install", error);
   });
   pruneHistory().catch((error) => {
-    console.error("YT Resume: failed to prune history on install", error);
+    console.error("YT Persist: failed to prune history on install", error);
   });
   updateBadge().catch((error) => {
-    console.error("YT Resume: failed to update badge on install", error);
+    console.error("YT Persist: failed to update badge on install", error);
   });
 
   chrome.notifications.getPermissionLevel((level) => {
     if (chrome.runtime.lastError) {
-      console.error("YT Resume: failed to check notification permission", chrome.runtime.lastError);
+      console.error("YT Persist: failed to check notification permission", chrome.runtime.lastError);
       return;
     }
 
     if (level !== "granted") {
-      console.info("YT Resume: notification permission is not granted");
+      console.info("YT Persist: notification permission is not granted");
     }
   });
 });
 
 chrome.runtime.onStartup.addListener(() => {
   registerAlarms().catch((error) => {
-    console.error("YT Resume: failed to register alarms on startup", error);
+    console.error("YT Persist: failed to register alarms on startup", error);
   });
   pruneHistory().catch((error) => {
-    console.error("YT Resume: failed to prune history on startup", error);
+    console.error("YT Persist: failed to prune history on startup", error);
   });
   updateBadge().catch((error) => {
-    console.error("YT Resume: failed to update badge on startup", error);
+    console.error("YT Persist: failed to update badge on startup", error);
   });
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_NAME) {
     checkVideosForNotifications().catch((error) => {
-      console.error("YT Resume: alarm check failed", error);
+      console.error("YT Persist: alarm check failed", error);
     });
   }
 });
 
 chrome.notifications.onClicked.addListener(async (notificationId) => {
-  if (!notificationId.startsWith("yt-resume:")) return;
+  if (!notificationId.startsWith("yt-persist:")) return;
 
-  const videoId = notificationId.slice("yt-resume:".length);
+  const videoId = notificationId.slice("yt-persist:".length);
 
   try {
     const result = await chrome.storage.local.get(videoId);
@@ -202,15 +202,15 @@ chrome.notifications.onClicked.addListener(async (notificationId) => {
     await chrome.tabs.create({ url: buildResumeUrl(video) });
     chrome.notifications.clear(notificationId);
   } catch (error) {
-    console.error(`YT Resume: failed to open notification video ${videoId}`, error);
+    console.error(`YT Persist: failed to open notification video ${videoId}`, error);
   }
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "local") return;
-  if (Object.keys(changes).some((key) => key !== "ytResumeLastLimitMessage")) {
+  if (Object.keys(changes).some((key) => key !== "ytPersistLastLimitMessage")) {
     updateBadge().catch((error) => {
-      console.error("YT Resume: failed to update badge after storage change", error);
+      console.error("YT Persist: failed to update badge after storage change", error);
     });
   }
 });

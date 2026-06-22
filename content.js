@@ -14,7 +14,7 @@ function getVideoIdFromUrl() {
     const url = new URL(window.location.href);
     return url.pathname === "/watch" ? url.searchParams.get("v") : null;
   } catch (error) {
-    console.error("YT Resume: failed to parse video URL", error);
+    console.error("YT Persist: failed to parse video URL", error);
     return null;
   }
 }
@@ -86,12 +86,12 @@ async function saveProgress(reason) {
     const hasCapacity = continueVideos.some((video) => video.videoId === videoId) || continueVideos.length < MAX_CONTINUE_VIDEOS;
 
     if (!progress.completed && !isContinueRecord(existing) && !hasCapacity) {
-      const recentLimitTime = Date.parse(allItems.ytResumeLastLimitMessage?.createdAt || "");
+      const recentLimitTime = Date.parse(allItems.ytPersistLastLimitMessage?.createdAt || "");
       const alreadyNotified = Number.isFinite(recentLimitTime) && nowMs - recentLimitTime < SAVE_INTERVAL_MS * 2;
 
       if (!alreadyNotified) {
         await chrome.storage.local.set({
-          ytResumeLastLimitMessage: {
+          ytPersistLastLimitMessage: {
             message: "You already have 10 videos in Continue Watching. Finish or remove one first.",
             createdAt: now
           }
@@ -119,7 +119,7 @@ async function saveProgress(reason) {
 
     await chrome.storage.local.set({ [videoId]: payload });
   } catch (error) {
-    console.error(`YT Resume: failed to save progress after ${reason}`, error);
+    console.error(`YT Persist: failed to save progress after ${reason}`, error);
   }
 }
 
@@ -201,7 +201,7 @@ function initializeForCurrentVideo() {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message?.type !== "YT_RESUME_GET_CURRENT_VIDEO") return false;
+  if (message?.type !== "YT_PERSIST_GET_CURRENT_VIDEO") return false;
 
   const videoId = getVideoIdFromUrl();
   const video = getVideoElement();

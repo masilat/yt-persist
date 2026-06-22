@@ -1,6 +1,6 @@
-# YT Resume
+# YT Persist
 
-YT Resume is a lightweight Chrome Extension that remembers progress in long YouTube videos and helps you continue later.
+YT Persist is a lightweight Chrome Extension that remembers progress in long YouTube videos and helps you continue later.
 
 ## Features
 
@@ -28,7 +28,7 @@ YT Resume is a lightweight Chrome Extension that remembers progress in long YouT
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
-5. Pin `YT Resume` from the Chrome extensions menu if desired.
+5. Pin `YT Persist` from the Chrome extensions menu if desired.
 
 ## Local Development
 
@@ -37,7 +37,7 @@ This extension uses plain HTML, CSS, and JavaScript. No build step is required.
 After editing files:
 
 1. Open `chrome://extensions`.
-2. Find `YT Resume`.
+2. Find `YT Persist`.
 3. Click the reload button.
 4. Refresh any open YouTube watch tabs.
 
